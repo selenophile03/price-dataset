@@ -2,41 +2,34 @@ name: Run Daily Price Tracker
 
 on:
   schedule:
-    # This tells GitHub to run the script automatically every day at midnight UTC
     - cron: '0 0 * * *'
-  workflow_dispatch:
-    # This adds a manual "Run button" on GitHub so you can test it anytime
+  workflow_dispatch: # Allows manual run button
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants explicit write access to the token
 
     steps:
-    # 1. Download the code from your repository into the GitHub cloud container
     - name: Checkout Repository Code
       uses: actions/checkout@v4
 
-    # 2. Set up Python on the cloud runner
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    # 3. Install the dependencies listed in requirements.txt
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install pandas
 
-    # 4. Execute your Python script
     - name: Run Price Scraper Script
       run: python get_prices.py
 
-    # 5. Commit the generated global_prices.csv file back into your GitHub repository
     - name: Commit and Push Changes
-      run: |
-        git config --global user.name "GitHub Action Bot"
-        git config --global user.email "actions@github.com"
-        git add data/global_prices.csv
-        git commit -m "Update global item prices [skip ci]" || echo "No changes to commit"
-        git push
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "Update global item prices [skip ci]"
+        file_pattern: 'data/global_prices.csv'

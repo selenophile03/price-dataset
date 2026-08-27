@@ -18,9 +18,12 @@ def get_global_prices():
 if __name__ == "__main__":
     prices_df = get_global_prices()
     
-    # Ensure a data directory exists
-    os.makedirs("data", exist_ok=True)
+    # Force creation of data directory in current workspace
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(current_dir, "data")
+    os.makedirs(data_dir, exist_ok=True)
     
-    # Save the output inside the data directory
-    prices_df.to_csv("data/global_prices.csv", index=False)
-    print("✅ Success! Data saved to data/global_prices.csv")
+    # Save the output file explicitly
+    output_path = os.path.join(data_dir, "global_prices.csv")
+    prices_df.to_csv(output_path, index=False)
+    print(f"✅ Success! Data saved to: {output_path}")
